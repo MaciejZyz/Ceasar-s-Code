@@ -1,0 +1,173 @@
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+
+void zliczanie(fstream &plik, int &przesuniecie, string nazwa)
+{
+	plik.open(nazwa.c_str(), ios::in);
+	if(plik.good()==true)
+	{
+	przesuniecie = 0;
+	do
+	{
+		plik.get();
+		przesuniecie++;
+	}
+	while(!plik.eof());
+	przesuniecie = przesuniecie - 1;
+	przesuniecie = przesuniecie % 26;
+	}
+	plik.close();
+}
+
+void porownanie_kod(char &znak, int przesuniecie, fstream &zakodowany)
+{
+	if(znak >= 65 && znak <= 90 || znak >= 97 && znak <= 122 )
+	{
+		if(znak + przesuniecie > 122)
+		{
+		znak=65+przesuniecie-122+znak-1;
+		zakodowany.put(znak);
+		}
+		else 
+		{
+			if(znak + przesuniecie > 90 && znak <= 90)
+			{
+			znak = znak + przesuniecie + 6;
+			zakodowany.put(znak);
+			}
+			else
+			{
+			znak=znak+przesuniecie;
+			zakodowany.put(znak);
+			}
+		}
+							
+	}
+	else
+	{
+	zakodowany.put(znak);
+	}
+}
+
+void porownanie_dekod(char &znak, int przesuniecie, fstream &odkodowany)
+{
+	if(znak >= 65 && znak <= 90 || znak >= 97 && znak <= 122 )
+							{
+								if(znak - przesuniecie < 65)
+								{
+								znak=znak+65-przesuniecie-7;
+								odkodowany.put(znak);
+								}
+								else 
+								{
+									if(znak - przesuniecie < 97 && znak >= 97)
+									{
+									znak = znak - przesuniecie - 6;
+									odkodowany.put(znak);
+									}
+									else
+									{
+										znak=znak-przesuniecie;
+										odkodowany.put(znak);
+									}
+								}
+							
+							}
+							else
+							{
+								odkodowany.put(znak);
+							}
+}
+
+int main()
+{
+	string do_kodowania;
+	string do_dekodowania;
+	fstream zakoduj;
+	fstream dekoduj;
+	fstream zakodowany;
+	fstream odkodowany;
+	char znak;
+	int przesuniecie;
+	int wybor;
+	while(1)
+	{
+	cout <<"Witaj. Jaka operacje wykonac?" << endl;
+	cout <<"1 - Zakoduj plik" << endl;
+	cout <<"2 - Zdekoduj plik" << endl;
+	cout <<"3 - Wyjdz z programu" << endl;
+	cin >> wybor;
+	system("cls");
+		switch(wybor)
+		{
+			case 1:
+				cout <<"Podaj nazwe pliku do zakodowania razem z rozszerzeniem(.txt): ";
+				cin >> do_kodowania;
+				system("cls");
+				zliczanie(zakoduj, przesuniecie, do_kodowania);
+				zakoduj.open(do_kodowania.c_str(), ios::in);
+				zakodowany.open("zakodowany.txt", ios::out);
+				if(zakoduj.good() == true )
+				{
+					do
+					{
+						if(zakoduj.get(znak))
+						{
+							porownanie_kod(znak, przesuniecie, zakodowany);
+						}
+						
+					}while(!zakoduj.eof());	
+					cout <<"Zaszyfrowano plik." <<endl;
+					system("pause");
+					system("cls");
+				
+				}
+				else
+				{
+					cout <<"Nie udalo sie otworzyc pliku." << endl;
+					system("pause");
+					system("cls");
+				}
+				break;
+				case 2:
+					cout <<"Podaj nazwe pliku do dekodowania: ";
+					cin >> do_dekodowania;
+					system("cls");
+					zliczanie(dekoduj,przesuniecie,do_dekodowania);
+					dekoduj.open(do_dekodowania.c_str(),ios::in | ios::out);
+					odkodowany.open("odkodowany.txt", ios::out);
+					if(dekoduj.good() == true)
+				{
+					cout <<"Odkodowano plik." <<endl;
+					system("pause");
+					system("cls");
+						do
+					{
+						if(dekoduj.get(znak))
+						{
+							porownanie_dekod(znak, przesuniecie, odkodowany);
+						}
+						
+					}while(!dekoduj.eof());
+				}
+				else
+				{
+					cout <<"Nie udalo sie otworzyc pliku." << endl;
+					system("pause");
+					system("cls");
+				}
+					break;
+					case 3:
+						return 0;
+						break;
+		}
+		zakoduj.close();
+		dekoduj.close();
+		zakodowany.close();
+		odkodowany.close();
+	}
+return 0;
+}
